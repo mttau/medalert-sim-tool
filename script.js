@@ -1,9 +1,38 @@
+document.getElementById('deactivateButton').addEventListener('click', function() {
+    console.log('Button clicked'); // Debugging console log
+
+    fetch('mapping.json')
+        .then(response => response.json())
+        .then(mappingArray => {
+            const mapping = mappingArray.reduce((acc, item) => {
+                acc[item["SIM SN"]] = item["ICCID"];
+                return acc;
+            }, {});
+
+            var simSns = document.getElementById('simNumbers').value.split('\n');
+            simSns.forEach(function(simSn) {
+                if (simSn.trim() !== '' && mapping[simSn.trim()]) {
+                    console.log('Scheduling deactivation for SIM SN:', simSn.trim()); // Debugging console log
+                    scheduleDeactivation(mapping[simSn.trim()]);
+                } else {
+                    console.error('ICCID not found for SIM S/N:', simSn);
+                }
+            });
+        })
+        .catch(error => {
+            console.error('Error loading mapping:', error);
+        });
+});
+
+function encodeCredentials(username, apiKey) {
+    return btoa(username + ':' + apiKey);
+}
+
 function scheduleDeactivation(iccid) {
-    // Render proxy server URL
+    console.log('scheduleDeactivation called with ICCID:', iccid); // Debugging console log
+
     const proxyUrl = 'https://medalert-proxy-render.onrender.com/proxy?url=';
-    // Target Jasper API URL
     const targetUrl = `https://restapi10.jasper.com/rws/api/v1/devices/${iccid}`;
-    // Combine the proxy URL with the target URL
     const fullUrl = proxyUrl + encodeURIComponent(targetUrl);
 
     const encodedCredentials = encodeCredentials('matthewtalia2', 'd988024b-9e25-4493-9c2b-e5b6c92fe041');
