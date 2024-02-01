@@ -24,36 +24,25 @@ document.getElementById('deactivateButton').addEventListener('click', function()
         });
 });
 
-function encodeCredentials(username, apiKey) {
-    return btoa(username + ':' + apiKey);
-}
-
 function scheduleDeactivation(iccid) {
     console.log('scheduleDeactivation called with ICCID:', iccid); // Debugging console log
 
-    const proxyUrl = 'https://medalert-proxy-render.onrender.com/proxy?url=';
-    const targetUrl = `https://restapi10.jasper.com/rws/api/v1/devices/${iccid}`;
-    const fullUrl = proxyUrl + encodeURIComponent(targetUrl);
-
-    const encodedCredentials = encodeCredentials('matthewtalia2', 'd988024b-9e25-4493-9c2b-e5b6c92fe041');
-    const headers = {
-        "Content-Type": "application/json",
-        "Accept": "application/json",
-        "Authorization": "Basic " + encodedCredentials
-    };
-
+    const proxyUrl = 'https://medalert-proxy-render.onrender.com/deactivate';
     const tomorrow = new Date();
     tomorrow.setDate(tomorrow.getDate() + 364);
     const effectiveDate = tomorrow.toISOString().split('T')[0] + 'Z';
 
     const data = {
-        "status": "DEACTIVATED",
-        "effectiveDate": effectiveDate
+        iccid: iccid,
+        effectiveDate: effectiveDate
     };
 
-    fetch(fullUrl, {
-        method: 'PUT',
-        headers: headers,
+    fetch(proxyUrl, {
+        method: 'POST',
+        headers: {
+            "Content-Type": "application/json",
+            "Accept": "application/json"
+        },
         body: JSON.stringify(data)
     })
     .then(response => {
