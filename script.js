@@ -16,11 +16,15 @@ document.getElementById('deactivateButton').addEventListener('click', function()
                     scheduleDeactivation(mapping[simSn.trim()]);
                 } else {
                     console.error('ICCID not found for SIM S/N:', simSn);
+                    // Update feedback for failure to find ICCID
+                    updateFeedback('ICCID not found for SIM S/N: ' + simSn, 'error');
                 }
             });
         })
         .catch(error => {
             console.error('Error loading mapping:', error);
+            // Update feedback for error in loading mapping
+            updateFeedback('Error loading mapping: ' + error.message, 'error');
         });
 });
 
@@ -53,8 +57,22 @@ function scheduleDeactivation(iccid) {
     })
     .then(data => {
         console.log('Success:', data);
+        // Update feedback for success
+        updateFeedback('Deactivation successful for ICCID: ' + iccid, 'success');
     })
     .catch(error => {
         console.error('Error:', error);
+        // Update feedback for failure in deactivation
+        updateFeedback('Deactivation failed for ICCID: ' + iccid + '. Error: ' + error.message, 'error');
     });
+}
+
+function updateFeedback(message, status) {
+    const feedbackElement = document.getElementById('feedback');
+    if (!feedbackElement) {
+        console.error('Feedback element not found.');
+        return;
+    }
+    feedbackElement.textContent = message; // Set the text of the feedback element to the message
+    feedbackElement.className = status; // Optionally, use this to style the message based on success or error
 }
