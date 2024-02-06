@@ -88,38 +88,10 @@ document.getElementById('setApnButton').addEventListener('click', function() {
 });
 
 function sendApnSettings(iccid) {
-    const proxyUrl = 'https://medalert-proxy-render.onrender.com/sendSms'; // Adjust if you have a different endpoint for SMS
-    const messageText = 'pw,123456,apn,telstra.m2m,,,50501#';
-
-    const data = {
-        iccid: iccid,
-        messageText: messageText,
-        // Additional parameters if needed
-    };
-
-    fetch(proxyUrl, {
-        method: 'POST',
-        headers: {
-            "Content-Type": "application/json",
-            "Accept": "application/json"
-        },
-        body: JSON.stringify(data)
-    })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        return response.json();
-    })
-    .then(data => {
-        console.log('SMS Sent:', data);
-        // Optionally update feedback on success
-        updateFeedback(`SMS sent successfully to ICCID: ${iccid}. Message ID: ${data.smsMsgId}`, 'success');
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        // Update feedback on failure
-        updateFeedback(`Failed to send SMS to ICCID: ${iccid}. Error: ${error.message}`, 'error');
-    });
+    // The implementation of sendApnSettings...
 }
 
+// Ensure any helper functions like updateFeedback are defined and available for use
+function updateFeedback(message, status) {
+    // The implementation of updateFeedback...
+}
