@@ -16,14 +16,12 @@ document.getElementById('deactivateButton').addEventListener('click', function()
                     scheduleDeactivation(mapping[simSn.trim()]);
                 } else {
                     console.error('ICCID not found for SIM S/N:', simSn);
-                    // Update feedback for failure to find ICCID
                     updateFeedback('ICCID not found for SIM S/N: ' + simSn, 'error');
                 }
             });
         })
         .catch(error => {
             console.error('Error loading mapping:', error);
-            // Update feedback for error in loading mapping
             updateFeedback('Error loading mapping: ' + error.message, 'error');
         });
 });
@@ -57,24 +55,12 @@ function scheduleDeactivation(iccid) {
     })
     .then(data => {
         console.log('Success:', data);
-        // Update feedback for success
         updateFeedback('Deactivation successful for ICCID: ' + iccid, 'success');
     })
     .catch(error => {
         console.error('Error:', error);
-        // Update feedback for failure in deactivation
         updateFeedback('Deactivation failed for ICCID: ' + iccid + '. Error: ' + error.message, 'error');
     });
-}
-
-function updateFeedback(message, status) {
-    const feedbackElement = document.getElementById('feedback');
-    if (!feedbackElement) {
-        console.error('Feedback element not found.');
-        return;
-    }
-    feedbackElement.textContent = message; // Set the text of the feedback element to the message
-    feedbackElement.className = status; // Optionally, use this to style the message based on success or error
 }
 
 document.getElementById('setApnButton').addEventListener('click', function() {
@@ -88,10 +74,44 @@ document.getElementById('setApnButton').addEventListener('click', function() {
 });
 
 function sendApnSettings(iccid) {
-    // The implementation of sendApnSettings...
+    const proxyUrl = 'https://medalert-proxy-render.onrender.com/sendSms'; // Adjusted for SMS sending
+    const messageText = 'pw,123456,apn,telstra.m2m,,,50501#';
+
+    const data = {
+        iccid: iccid,
+        messageText: messageText,
+    };
+
+    fetch(proxyUrl, {
+        method: 'POST',
+        headers: {
+            "Content-Type": "application/json",
+            "Accept": "application/json"
+        },
+        body: JSON.stringify(data)
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+    })
+    .then(data => {
+        console.log('SMS Sent:', data);
+        updateFeedback(`SMS sent successfully to ICCID: ${iccid}.`, 'success');
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        updateFeedback(`Failed to send SMS to ICCID: ${iccid}. Error: ${error.message}`, 'error');
+    });
 }
 
-// Ensure any helper functions like updateFeedback are defined and available for use
 function updateFeedback(message, status) {
-    // The implementation of updateFeedback...
+    const feedbackElement = document.getElementById('feedback');
+    if (!feedbackElement) {
+        console.error('Feedback element not found.');
+        return;
+    }
+    feedbackElement.textContent = message;
+    feedbackElement.className = status;
 }
