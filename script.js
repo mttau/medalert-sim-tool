@@ -64,17 +64,35 @@ function scheduleDeactivation(iccid) {
 }
 
 document.getElementById('setApnButton').addEventListener('click', function() {
-    var simSns = document.getElementById('simNumbers').value.split('\n');
-    simSns.forEach(function(simSn) {
-        if (simSn.trim() !== '') {
-            console.log('Sending APN settings SMS to SIM SN:', simSn.trim());
-            sendApnSettings(simSn.trim());
-        }
-    });
+    console.log('Button clicked'); // Debugging console log for sending APN settings SMS
+
+    fetch('mapping.json')
+        .then(response => response.json())
+        .then(mappingArray => {
+            const mapping = mappingArray.reduce((acc, item) => {
+                acc[item["SIM SN"]] = item["ICCID"];
+                return acc;
+            }, {});
+
+            var simSns = document.getElementById('simNumbers').value.split('\n');
+            simSns.forEach(function(simSn) {
+                if (simSn.trim() !== '' && mapping[simSn.trim()]) {
+                    console.log('Sending APN settings SMS to SIM SN:', simSn.trim()); // Debugging console log
+                    sendApnSettings(mapping[simSn.trim()]); // Pass ICCID to sendApnSettings
+                } else {
+                    console.error('ICCID not found for SIM S/N:', simSn);
+                    updateFeedback('ICCID not found for SIM S/N: ' + simSn, 'error');
+                }
+            });
+        })
+        .catch(error => {
+            console.error('Error loading mapping:', error);
+            updateFeedback('Error loading mapping: ' + error.message, 'error');
+        });
 });
 
 function sendApnSettings(iccid) {
-    const proxyUrl = 'https://medalert-proxy-render.onrender.com/sendSms'; // Adjusted for SMS sending
+    const proxyUrl = 'https://medalert-proxy-render.onrender.com/sendSms';
     const messageText = 'pw,123456,apn,telstra.m2m,,,50501#';
 
     const data = {
@@ -113,5 +131,5 @@ function updateFeedback(message, status) {
         return;
     }
     feedbackElement.textContent = message;
-    feedbackElement.className = status;
+    feedbackElement.className = status; // This could be used to apply different styles based on the status (success or error)
 }
